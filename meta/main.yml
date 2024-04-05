@@ -17,21 +17,18 @@ galaxy_info:
   # https://galaxy.ansible.com/api/v1/platforms/
   #
   platforms:
-  - name: Fedora
-    versions:
-    - 25
   - name: EL
     versions:
     - 7
     - 8
+    - 9
   - name: Ubuntu
     versions: 
     - focal
 
   galaxy_tags: 
-  - development
-  - oracle
-  - java
-  - jdk
+  - nutanix
+  - httpd
+  - darksite
     
 dependencies: []
