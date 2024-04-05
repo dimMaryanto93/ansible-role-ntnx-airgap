@@ -33,17 +33,16 @@
       loop: "{{ ntp_server }}"
     - name: Systemctl enable service ntp-server
       ansible.builtin.systemd_service:
-        name: "{{ item[0] }}"
+        name: "chronyd"
         enabled: true
-        state: started
         daemon_reload: true
+        state: started
     - name: Permit traffic in default zone for ntp service
       when: ansible_facts['os_family'] == 'RedHat'
       ansible.posix.firewalld:
         service: ntp
         permanent: true
         state: enabled
-        daemon_reload: true
         immediate: true
     - name: Enable service httpd
       when: ansible_facts['os_family'] == 'Debian'
@@ -72,7 +71,6 @@
       permanent: true
       immediate: true
       state: enabled
-      daemon_reload: true
   - name: Permit traffic in default zone for apache2 service
     when: ansible_facts['os_family'] == 'Debian'
     community.general.ufw:
@@ -94,29 +92,35 @@
     register: file_airgap_nke_upload
   - name: Copy file 'airgap-ntnx-{{ airgap_nke.version }}.tar.gz' to server
     copy:
-      src: "{{ airgap_nke.local-folder }}/airgap-ntnx-{{ airgap_nke.version }}.tar.gz"
+      src: "{{ airgap_nke.local_folder }}/airgap-ntnx-{{ airgap_nke.version }}.tar.gz"
       dest: "/tmp/airgap-ntnx-{{ airgap_nke.version }}.tar.gz"
-    when: not file_airgap_nke_upload.stat.exists
+    when: 
+    - not file_airgap_nke_upload.stat.exists
+    - direct_download == false
   - name: Create a directory if it does not exist for site nke-airgap
     ansible.builtin.file:
-      path: '{{ airgap_nke.site-folder }}'
+      path: '{{ airgap_nke.site_folder }}'
       state: directory
       mode: '0777'
-  - name: Extract '/tmp/airgap-ntnx-{{ airgap_nke.version }}.tar.gz' into '{{ airgap_nke.site-folder }}'
+  - name: Extract '/tmp/airgap-ntnx-{{ airgap_nke.version }}.tar.gz' into '{{ airgap_nke.site_folder }}'
     ansible.builtin.unarchive:
       src: '/tmp/airgap-ntnx-{{ airgap_nke.version }}.tar.gz'
-      dest: '{{ airgap_nke.site-folder }}'
+      dest: '{{ airgap_nke.site_folder }}'
       remote_src: yes
+  - name: Check the file 'airgap-manifest.json' exists
+    stat:
+      path: '{{ airgap_nke.site_folder }}/airgap-manifest.json'
+    register: file_airgap_nke_manifest_upload
   - name: Copy file 'airgap-manifest.json' to server
     copy:
-      src: "{{ airgap_nke.local-folder }}/airgap-manifest.json"
-      dest: "{{ airgap_nke.site-folder }}/airgap-manifest.json"
-    when: not file_airgap_nke_upload.stat.exists
+      src: "{{ airgap_nke.local_folder }}/airgap-manifest.json"
+      dest: "{{ airgap_nke.site_folder }}/airgap-manifest.json"
+    when: 
+    - not file_airgap_nke_manifest_upload.stat.exists
+    - direct_download == false
   - name: Fix 'support_tools' permissions
     ansible.builtin.file: 
-      path: '{{ airgap_nke.site-folder }}' 
-      owner: '{{ ansible_user }} '
-      group: '{{ ansible_user }}' 
+      path: '{{ airgap_nke.site_folder }}' 
       mode: 0777
       state: directory 
       recurse: yes
@@ -127,23 +131,27 @@
   # upload object-{{ airgap_object.version }}.tar.gz
   - name: Check the file 'object-{{ airgap_object.version }}.tar.gz' exists
     stat:
-      path: '/tmp/object-{{ airgap_object.version }}.tar.gz'
+      path: '/tmp/objects-{{ airgap_object.version }}.tar.gz'
     register: file_airgap_object_upload
-  - name: Copy file 'object-{{ airgap_object.version }}.tar.gz' to server
+  - name: Copy file 'objects-{{ airgap_object.version }}.tar.gz' to server
     copy:
-      src: "{{ airgap_object.local-folder }}/object-{{ airgap_object.version }}.tar.gz"
-      dest: "/tmp/object-{{ airgap_object.version }}.tar.gz"
-    when: not file_airgap_object_upload.stat.exists
-  # upload lcm_darksite_msp-{{ airgap_object.msp-version }}.tar.gz
-  - name: Check the file 'lcm_darksite_msp-{{ airgap_object.msp-version }}.tar.gz' exists
+      src: "{{ airgap_object.local_folder }}/objects-{{ airgap_object.version }}.tar.gz"
+      dest: "/tmp/objects-{{ airgap_object.version }}.tar.gz"
+    when: 
+    - not file_airgap_object_upload.stat.exists
+    - direct_download == false
+  # upload lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz
+  - name: Check the file 'lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz' exists
     stat:
-      path: '/tmp/lcm_darksite_msp-{{ airgap_object.msp-version }}.tar.gz'
+      path: '/tmp/lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz'
     register: file_airgap_object_msp_upload
-  - name: Copy file 'object-{{ airgap_object.version }}.tar.gz' to server
+  - name: Copy file 'lcm_darksite_msp-{{ airgap_object.version }}.tar.gz' to server
     copy:
-      src: "{{ airgap_object.local-folder }}/lcm_darksite_msp-{{ airgap_object.msp-version }}.tar.gz"
-      dest: "/tmp/lcm_darksite_msp-{{ airgap_object.msp-version }}.tar.gz"
-    when: not file_airgap_object_msp_upload.stat.exists
+      src: "{{ airgap_object.local_folder }}/lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz"
+      dest: "/tmp/lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz"
+    when: 
+    - not file_airgap_object_msp_upload.stat.exists
+    - direct_download == false
   # upload nutanix_compatibility_bundle.tar.gz
   - name: Check the file 'nutanix_compatibility_bundle.tar.gz' exists
     stat:
@@ -151,36 +159,35 @@
     register: file_lcm_ntnx_compat_upload
   - name: Copy file 'nutanix_compatibility_bundle.tar.gz' to server
     copy:
-      src: "{{ airgap_object.local-folder }}/nutanix_compatibility_bundle.tar.gz"
+      src: "{{ airgap_object.local_folder }}/nutanix_compatibility_bundle.tar.gz"
       dest: "/tmp/nutanix_compatibility_bundle.tar.gz"
-    when: not file_lcm_ntnx_compat_upload.stat.exists
-
+    when: 
+    - not file_lcm_ntnx_compat_upload.stat.exists
+    - direct_download == false
   - name: Create a directory if it does not exist for site nke-airgap
     ansible.builtin.file:
-      path: '{{ airgap_object.site-folder }}'
+      path: '{{ airgap_object.site_folder }}'
       state: directory
       mode: '0777'
-  - name: Extract '/tmp/object-{{ airgap_object.version }}.tar.gz' into '{{ airgap_object.site-folder }}'
+  - name: Extract '/tmp/objects-{{ airgap_object.version }}.tar.gz' into '{{ airgap_object.site_folder }}'
     ansible.builtin.unarchive:
-      src: '/tmp/object-{{ airgap_object.version }}.tar.gz'
-      dest: '{{ airgap_object.site-folder }}'
+      src: '/tmp/objects-{{ airgap_object.version }}.tar.gz'
+      dest: '{{ airgap_object.site_folder }}'
       remote_src: yes
-  - name: Extract '/tmp/lcm_darksite_msp-{{ airgap_object.msp-version }}.tar.gz' into '{{ airgap_object.site-folder }}'
+  - name: Extract '/tmp/lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz' into '{{ airgap_object.site_folder }}'
     ansible.builtin.unarchive:
-      src: '/tmp/lcm_darksite_msp-{{ airgap_object.msp-version }}.tar.gz'
-      dest: '{{ airgap_object.site-folder }}'
+      src: '/tmp/lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz'
+      dest: '{{ airgap_object.site_folder }}'
       remote_src: yes
-  - name: Extract 'nutanix_compatibility_bundle.tar.gz' into '{{ airgap_object.site-folder }}'
+  - name: Extract 'nutanix_compatibility_bundle.tar.gz' into '{{ airgap_object.site_folder }}'
     ansible.builtin.unarchive:
       src: '/tmp/nutanix_compatibility_bundle.tar.gz'
-      dest: '{{ airgap_object.site-folder }}'
+      dest: '{{ airgap_object.site_folder }}'
       remote_src: yes
 
   - name: Fix 'support_tools' permissions
     ansible.builtin.file: 
-      path: '{{ airgap_object.site-folder }}' 
-      owner: '{{ ansible_user }} '
-      group: '{{ ansible_user }}' 
+      path: '{{ airgap_object.site_folder }}'
       mode: 0777
       state: directory 
       recurse: yes
