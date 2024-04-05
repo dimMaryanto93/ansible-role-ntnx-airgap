@@ -1,0 +1,4 @@
+webserver: "httpd"
+ntp_server:
+  - chrony
+  - nc

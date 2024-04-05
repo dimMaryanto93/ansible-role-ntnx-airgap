@@ -1,0 +1,3 @@
+webserver: "apache2"
+ntp_server:
+  - chrony
