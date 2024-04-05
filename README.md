@@ -52,7 +52,7 @@ Including an example of how to use your role (for instance, with variables passe
     default_nke_airgap_folder: /Volumes/data/packages/Nutanix/nke/2.8.0
     default_object_airgap_folder: /Volumes/data/packages/Nutanix/object/3.6
   roles:
-    - ../../ansible-role-ntnx-airgap
+    - dimmaryanto93.ntnx_airgap
 ```
 
 License
