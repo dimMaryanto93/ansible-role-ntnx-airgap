@@ -105,7 +105,7 @@
   - name: Extract '/tmp/airgap-ntnx-{{ airgap_nke.version }}.tar.gz' into '{{ airgap_nke.site_folder }}'
     ansible.builtin.unarchive:
       src: '/tmp/airgap-ntnx-{{ airgap_nke.version }}.tar.gz'
-      dest: '{{ airgap_nke.site_folder }}'
+      dest: '/var/www/html{{ airgap_nke.site_folder }}'
       remote_src: yes
   - name: Check the file 'airgap-manifest.json' exists
     stat:
@@ -114,13 +114,13 @@
   - name: Copy file 'airgap-manifest.json' to server
     copy:
       src: "{{ airgap_nke.local_folder }}/airgap-manifest.json"
-      dest: "{{ airgap_nke.site_folder }}/airgap-manifest.json"
+      dest: "/var/www/html{{ airgap_nke.site_folder }}/airgap-manifest.json"
     when: 
     - not file_airgap_nke_manifest_upload.stat.exists
     - direct_download == false
   - name: Fix 'support_tools' permissions
     ansible.builtin.file: 
-      path: '{{ airgap_nke.site_folder }}' 
+      path: '/var/www/html{{ airgap_nke.site_folder }}' 
       mode: 0777
       state: directory 
       recurse: yes
@@ -172,22 +172,22 @@
   - name: Extract '/tmp/objects-{{ airgap_object.version }}.tar.gz' into '{{ airgap_object.site_folder }}'
     ansible.builtin.unarchive:
       src: '/tmp/objects-{{ airgap_object.version }}.tar.gz'
-      dest: '{{ airgap_object.site_folder }}'
+      dest: '/var/www/html{{ airgap_object.site_folder }}'
       remote_src: yes
   - name: Extract '/tmp/lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz' into '{{ airgap_object.site_folder }}'
     ansible.builtin.unarchive:
       src: '/tmp/lcm_darksite_msp-{{ airgap_object.msp_version }}.tar.gz'
-      dest: '{{ airgap_object.site_folder }}'
+      dest: '/var/www/html{{ airgap_object.site_folder }}'
       remote_src: yes
   - name: Extract 'nutanix_compatibility_bundle.tar.gz' into '{{ airgap_object.site_folder }}'
     ansible.builtin.unarchive:
       src: '/tmp/nutanix_compatibility_bundle.tar.gz'
-      dest: '{{ airgap_object.site_folder }}'
+      dest: '/var/www/html{{ airgap_object.site_folder }}'
       remote_src: yes
 
   - name: Fix 'support_tools' permissions
     ansible.builtin.file: 
-      path: '{{ airgap_object.site_folder }}'
+      path: '/var/www/html{{ airgap_object.site_folder }}'
       mode: 0777
       state: directory 
       recurse: yes

@@ -6,10 +6,10 @@ direct_download: false
 airgap_nke:
   local_folder: "{{ default_nke_airgap_folder | default('files') }}"
   version: "{{ default_nke_airgap_version | default('2.8.0') }}"
-  site_folder: "{{ default_nke_airgap_site_folder | default('/var/www/html/release/nke') }}"
+  site_folder: "{{ default_nke_airgap_site_folder | default('/release/nke') }}"
 enable_airgap_object: true
 airgap_object:
   local_folder: "{{ default_object_airgap_folder | default('files') }}"
   version: "{{ default_object_airgap_version | default('3.6') }}"
   msp_version: "{{ default_msp_version | default('2.4.2.2') }}"
-  site_folder: "{{ default_object_airgap_site_folder | default('/var/www/html/release/object') }}"
+  site_folder: "{{ default_object_airgap_site_folder | default('/release/object') }}"
