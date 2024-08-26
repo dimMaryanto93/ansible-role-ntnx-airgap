@@ -99,7 +99,7 @@
     - direct_download == false
   - name: Create a directory if it does not exist for site nke-airgap
     ansible.builtin.file:
-      path: '{{ airgap_nke.site_folder }}'
+      path: '/var/www/html{{ airgap_nke.site_folder }}'
       state: directory
       mode: '0777'
   - name: Extract '/tmp/airgap-ntnx-{{ airgap_nke.version }}.tar.gz' into '{{ airgap_nke.site_folder }}'
@@ -166,7 +166,7 @@
     - direct_download == false
   - name: Create a directory if it does not exist for site nke-airgap
     ansible.builtin.file:
-      path: '{{ airgap_object.site_folder }}'
+      path: '/var/www/html{{ airgap_object.site_folder }}'
       state: directory
       mode: '0777'
   - name: Extract '/tmp/objects-{{ airgap_object.version }}.tar.gz' into '{{ airgap_object.site_folder }}'
